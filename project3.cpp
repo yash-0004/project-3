@@ -1,414 +1,407 @@
-// Simple Bus Reservation System in C++
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#include <fstream>
+std::map<std::string, std::vector<std::string>> bookingHistory;
 using namespace std;
 
-/* p variable keeps track of number of bus available at the moment.
-If we have added 5 buses then p will be 5. Used as index of bus array. Intially no bus in the system, so p=0
-*/
-int p = 0;   
+int p = 0; // Total number of buses
 
-/* Here each of the bus is class type. we are using a array of class named `bus` where the size 25
-means we can maximum add 25 buses. Each bus to be manually added. We used class because using class we 
-can easily use different method in bus and easily modify then plus retain OOPs property.
-*/
-class a
-{
-  //Note: Don't use space in input.
-  //busPlateNum can store a input upto length 7 and so on for other attributes.
-  //Here seatNumber is number of seats in a bus, seatNumber is matrix type char, means seatNumber[8][4] have 4 columns and 8 rows,
-  //meaning 8*4=32 seats in total, while seatNumber[8][4][10] means each of the seatNumber can store a nameOfPassenger with 10 character each
-  char busn[5], driver[10], arrival[10], depart[10], from[10], to[10], seat[8][4][10];
+class a {
+private:
+    char busn[5], driver[10], arrival[10], depart[10], from[10], to[10], seat[8][4][10];
 
 public:
+    void addNewBus();
+    void allotmentOfSeatToPassenger();
+    void empty();
+    void showAvailableBusSeats();
+    void showAvailableBuses();
+    void showReservedBusSeats(int i);
 
-  void addNewBus(); // Adds a New Bus with its details
+    const char* getBusNo() const { return busn; }
+    const char* getDriver() const { return driver; }
+    const char* getArrival() const { return arrival; }
+    const char* getDepart() const { return depart; }
+    const char* getFrom() const { return from; }
+    const char* getTo() const { return to; }
+    char* getSeat(int i, int j) { return seat[i][j]; }
 
-  void allotmentOfSeatToPassenger(); // Used to allot seatNumber to passenger from availbale buses
+    void setBusNo(const char* val) { strcpy(busn, val); }
+    void setDriver(const char* val) { strcpy(driver, val); }
+    void setArrival(const char* val) { strcpy(arrival, val); }
+    void setDepart(const char* val) { strcpy(depart, val); }
+    void setFrom(const char* val) { strcpy(from, val); }
+    void setTo(const char* val) { strcpy(to, val); }
+    void setSeat(int i, int j, const char* name) { strcpy(seat[i][j], name); }
+} bus[25];
 
-  void empty();     // Used to intilialize all bus seats as vacent
-
-  void showAvailableBusSeats();      //shows avialble bus seats from a bus
-
-  void showAvailableBuses();     //shows all avialable buses
-
-  void showReservedBusSeats(int i); //to get the all reserved bus seats from a bus
-
-}
-bus[25]; // Bus is aa rray of class with max size of 25 buses.
-
-/* Dummy function used to add lines of `*` to separate and clean output*/
-void vline(char ch)
-{
-
-  for (int i=75;i>0;i--){
-    cout<<ch;
-  }
-  cout<<endl;
-
-}
-
-void a::addNewBus()
-{
-
-  cout<<"Enter bus no: ";
-
-  cin>>bus[p].busn;
-
-  cout<<"\nEnter Driver's name: ";
-
-  cin>>bus[p].driver;
-
-  cout<<"\nArrival time : ";
-
-  cin>>bus[p].arrival;
-
-  cout<<"\nDeparture: ";
-
-  cin>>bus[p].depart;
-
-  cout<<"\nFrom: \t\t\t";
-
-  cin>>bus[p].from;
-
-  cout<<"\nTo: \t\t\t";
-
-  cin>>bus[p].to;
-
-  bus[p].empty(); // Fill all the seats with 'empty'
-
-  p++; //Number of buses(index of array bus) increase
-
+void vline(char ch) {
+    for (int i = 75; i > 0; i--) cout << ch;
+    cout << endl;
 }
 
-//Used to allocate seat in bus
-void a::allotmentOfSeatToPassenger()
+void a::addNewBus() {
+    string input;
+    cout << "Enter bus no: ";
+    cin >> input; setBusNo(input.c_str());
 
-{
+    cout << "\nEnter Driver's name: ";
+    cin >> input; setDriver(input.c_str());
 
-  int seat;  // Enter seat number between 1 to 32
+    cout << "\nArrival time: ";
+    cin >> input; setArrival(input.c_str());
 
-  char number[5]; //Bus number in which you want to reserve seat
+    cout << "\nDeparture time: ";
+    cin >> input; setDepart(input.c_str());
 
-  top:
+    cout << "\nFrom: ";
+    cin >> input; setFrom(input.c_str());
 
-  cout<<"Bus no: ";
+    cout << "\nTo: ";
+    cin >> input; setTo(input.c_str());
 
-  cin>>number;
+    empty();
+    p++;
+}
 
-  int n;
+void a::allotmentOfSeatToPassenger() {
+    int seat;
+    char number[5];
+top:
+    cout << "Bus no: ";
+    cin >> number;
 
-  for(n=0;n<=p;n++)
-
-  {
-
-    if(strcmp(bus[n].busn, number)==0) //Check if bus number exist or not, if exist n will be the index of array bus
-
-    break;
-
-  }
-
-  while(n<=p)
-
-  {
-
-    cout<<"\nSeat Number: ";
-
-    cin>>seat;
-
-    if(seat>32) //Can't allocate as there are only 32 seats
-    {
-
-      cout<<"\nThere are only 32 seats available in this bus.";
-
+    int n;
+    for (n = 0; n < p; n++) {
+        if (strcmp(bus[n].getBusNo(), number) == 0) break;
     }
 
-    else
-
-    {
-
-    if (strcmp(bus[n].seat[seat/4][(seat%4)-1], "Empty")==0) // used to break the seat number in row-column basis, If empty then allocate passenger
-
-      {
-
-        cout<<"Enter passanger's name: ";
-
-        cin>>bus[n].seat[seat/4][(seat%4)-1];
-
-        break;
-
-      }
-
-    else
-
-      cout<<"The seat number is already reserved.\n";
-
-      }
-
-      }
-
-    if(n>p)
-
-    {
-
-      cout<<"Enter correct bus no.\n";
-
-      goto top;
-
+    if (n >= p) {
+        cout << "Enter correct bus no.\n";
+        goto top;
     }
 
-  }
+    cout << "\nSeat Number: ";
+    cin >> seat;
 
-//Makes all the seats empty
-void a::empty()
-
-{
-
-  for(int i=0; i<8;i++)
-
-  {
-
-    for(int j=0;j<4;j++)
-
-    {
-
-      strcpy(bus[p].seat[i][j], "Empty");
-
+    if (seat > 32 || seat < 1) {
+        cout << "\nThere are only 32 seats available in this bus.";
+        return;
     }
 
-  }
+    int row = (seat - 1) / 4;
+    int col = (seat - 1) % 4;
 
+    if (strcmp(bus[n].getSeat(row, col), "Empty") == 0) {
+        cout << "Enter passenger's name: ";
+        string pname;
+        cin >> pname;
+        bus[n].setSeat(row, col, pname.c_str());
+    
+        // Add to booking history
+        string seatLabel = string(bus[n].getBusNo()) + "-Seat" + to_string(seat);
+        bookingHistory[pname].push_back(seatLabel);
+    
+        cout << "Seat reserved successfully for " << pname << ".\n";
+    } else {
+        cout << "The seat number is already reserved.\n";
+    }
+    
 }
 
-
-// Allows to check vacent seats in a bus
-void a::showAvailableBusSeats()
-
-{
-
-  int n;
-
-  char number[5];
-
-  cout<<"Enter bus no: ";
-
-  cin>>number;
-
-//Finds the bus number matched with input bus number
-  for(n=0;n<=p;n++)
-
-  {
-
-    if(strcmp(bus[n].busn, number)==0) // if matched the n will be the index of bus
-
-    break;
-
-  }
-
-while(n<=p)
-
-{
-
-  vline('*'); // Prints a line with '*'
-  cout<<"\nBus no: \t"<<bus[n].busn
-
-  <<"\nDriver: \t"<<bus[n].driver<<"\t\tArrival time: \t"
-
-  <<bus[n].arrival<<"\tDeparture time:"<<bus[n].depart
-
-  <<"\nFrom: \t\t"<<bus[n].from<<"\t\tTo: \t\t"<<
-
-  bus[n].to<<"\n";
-
-  vline('*');
-
-  bus[0].showReservedBusSeats(n); //Checks for reserved seats in the current bus( nth bus)
-
-  int a=1;
-
-  for (int i=0; i<8; i++)
-
-  {
-
-    for(int j=0;j<4;j++)
-
-    {
-
-      a++;
-
-      if(strcmp(bus[n].seat[i][j],"Empty")!=0)
-
-      cout<<"\nThe seat no "<<(a-1)<<" is reserved for "<<bus[n].seat[i][j]<<".";
-
-    }
-
-  }
-
-  break;
-
-  }
-
-  if(n>p)
-
-    cout<<"Enter correct bus no: ";
-
+void a::empty() {
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 4; j++)
+            setSeat(i, j, "Empty");
 }
 
-//Helps create a table output with seats empty and reserved seats with passenger name
-void a::showReservedBusSeats(int l)
-{
-
-  int s=0,h=0;
-
-  for (int i =0; i<8;i++)
-
-  {
-
-    cout<<"\n";
-
-    for (int j = 0;j<4; j++)
-
-    {
-
-      s++;
-
-      if(strcmp(bus[l].seat[i][j], "Empty")==0)
-
-        {
-
-          cout.width(5);
-
-          cout.fill(' ');
-
-          cout<<s<<".";
-
-          cout.width(10);
-
-          cout.fill(' ');
-
-          cout<<bus[l].seat[i][j];
-
-          h++;
-
+void a::showAvailableBusSeats() {
+    int n;
+    char number[5];
+    while (true) {
+        cout << "Enter bus no: ";
+        cin >> number;
+        for (n = 0; n < p; n++) {
+            if (strcmp(bus[n].getBusNo(), number) == 0)
+                break;
         }
-
-        else
-
-        {
-
-        cout.width(5);
-
-        cout.fill(' ');
-
-        cout<<s<<".";
-
-        cout.width(10);
-
-        cout.fill(' ');
-
-        cout<<bus[l].seat[i][j];
-
-        }
-
-      }
-
+        if (n < p) break;
+        else cout << "Incorrect bus no. Please try again.\n";
     }
-
-  cout<<"\n\nThere are "<<h<<" seats empty in Bus No: "<<bus[l].busn;
-
-  }
-
-//Print all the buses added in the system
-void a::showAvailableBuses()
-
-{
-
-  for(int n=0;n<p;n++)
-
-  {
 
     vline('*');
-
-    cout<<"Bus no: \t"<<bus[n].busn<<"\nDriver: \t"<<bus[n].driver
-
-    <<"\t\tArrival time: \t"<<bus[n].arrival<<"\tDeparture Time: \t"
-
-    <<bus[n].depart<<"\nFrom: \t\t"<<bus[n].from<<"\t\tTo: \t\t\t"
-
-    <<bus[n].to<<"\n";
-
+    cout << "\nBus no: \t" << bus[n].getBusNo()
+         << "\nDriver: \t" << bus[n].getDriver()
+         << "\tArrival: \t" << bus[n].getArrival()
+         << "\tDeparture: " << bus[n].getDepart()
+         << "\nFrom: \t\t" << bus[n].getFrom()
+         << "\tTo: \t\t" << bus[n].getTo() << "\n";
     vline('*');
 
-    vline('_');
+    bus[n].showReservedBusSeats(n);
 
-  }
-
+    int seatNo = 1;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (strcmp(bus[n].getSeat(i, j), "Empty") != 0) {
+                cout << "\nThe seat no " << seatNo << " is reserved for " << bus[n].getSeat(i, j) << ".";
+            }
+            seatNo++;
+        }
+    }
 }
 
-//Main function
-int main()
-
-{
-
-//system("cls");
-  //Choice will be users input to use different functionality over system using switch 
-  int choice;
-  vline('-');
-  cout<<"\t\t\t\t****SM Bus Travel Agency****"<<endl<<endl;
-  vline('-');
-  while(1)
-  {
- 
-
-    //system("cls");
-  cout<<endl;
-  vline('*');
-  cout<<"\n\n";
-
-  cout<<"\t\t\t1.Add new Bus Details:\n\t\t\t"
-
-  <<"2.Reserve your seats:\n\t\t\t"
-
-  <<"3.Show the available seats in a bus:\n\t\t\t"
-
-  <<"4.Buses Available Now: \n\t\t\t"
-
-  <<"5.Exit";
-  cout<<endl;
-  vline('*');
-  cout<<"\n\t\t\tEnter your choice:-> ";
-
-  cin>>choice;
-  vline('*');
-
-  switch(choice)
-
-  {
-
-    case 1:  bus[p].addNewBus();
-
-      break;
-
-    case 2:  bus[p].allotmentOfSeatToPassenger();
-
-      break;
-
-    case 3:  bus[0].showAvailableBusSeats();
-
-      break;
-
-    case 4:  bus[0].showAvailableBuses();
-
-      break;
-
-    case 5:  {
-      cout<<"Successfully Logged out from the Application. Visit Again!"<<endl<<"<Thanks You :)>"<<endl<<"Created By Code Conquerors."<<endl;
-      exit(0);
-    };
-
-  }
-
+void a::showReservedBusSeats(int l) {
+    int s = 1, h = 0;
+    for (int i = 0; i < 8; i++) {
+        cout << "\n";
+        for (int j = 0; j < 4; j++) {
+            cout.width(5); cout.fill(' ');
+            cout << s << ".";
+            cout.width(10); cout.fill(' ');
+            cout << bus[l].getSeat(i, j);
+            if (strcmp(bus[l].getSeat(i, j), "Empty") == 0) h++;
+            s++;
+        }
+    }
+    cout << "\n\nThere are " << h << " seats empty in Bus No: " << bus[l].getBusNo();
 }
 
-return 0;
+void a::showAvailableBuses() {
+    for (int n = 0; n < p; n++) {
+        vline('*');
+        cout << "Bus no: \t" << bus[n].getBusNo()
+             << "\nDriver: \t" << bus[n].getDriver()
+             << "\tArrival: \t" << bus[n].getArrival()
+             << "\tDeparture: \t" << bus[n].getDepart()
+             << "\nFrom: \t\t" << bus[n].getFrom()
+             << "\tTo: \t\t" << bus[n].getTo() << "\n";
+        vline('*');
+        vline('_');
+    }
+}
 
+// ----------- New Search Functions ------------------
+
+void searchBusByRoute() {
+    string source, destination;
+    cout << "Enter source location: ";
+    cin >> source;
+    cout << "Enter destination location: ";
+    cin >> destination;
+
+    bool found = false;
+    for (int i = 0; i < p; i++) {
+        if (strcmp(bus[i].getFrom(), source.c_str()) == 0 &&
+            strcmp(bus[i].getTo(), destination.c_str()) == 0) {
+            vline('*');
+            cout << "Bus no: " << bus[i].getBusNo()
+                 << ", Driver: " << bus[i].getDriver()
+                 << ", Arrival: " << bus[i].getArrival()
+                 << ", Departure: " << bus[i].getDepart() << endl;
+            vline('*');
+            found = true;
+        }
+    }
+
+    if (!found)
+        cout << "No buses found for this route.\n";
+}
+
+void searchBusByTime() {
+    string time;
+    int type;
+    cout << "Search by:\n1. Arrival Time\n2. Departure Time\nChoice: ";
+    cin >> type;
+    cout << "Enter time (e.g., 10:30AM): ";
+    cin >> time;
+
+    bool found = false;
+    for (int i = 0; i < p; i++) {
+        if ((type == 1 && strcmp(bus[i].getArrival(), time.c_str()) == 0) ||
+            (type == 2 && strcmp(bus[i].getDepart(), time.c_str()) == 0)) {
+            vline('*');
+            cout << "Bus no: " << bus[i].getBusNo()
+                 << ", Driver: " << bus[i].getDriver()
+                 << ", Arrival: " << bus[i].getArrival()
+                 << ", Departure: " << bus[i].getDepart()
+                 << ", Route: " << bus[i].getFrom() << " -> " << bus[i].getTo() << endl;
+            vline('*');
+            found = true;
+        }
+    }
+
+    if (!found)
+        cout << "No buses found for the given time.\n";
+}
+
+void searchBusByAvailability() {
+    bool found = false;
+    for (int i = 0; i < p; i++) {
+        int emptySeats = 0;
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 4; col++) {
+                if (strcmp(bus[i].getSeat(row, col), "Empty") == 0) {
+                    emptySeats++;
+                }
+            }
+        }
+
+        if (emptySeats > 0) {
+            vline('*');
+            cout << "Bus no: " << bus[i].getBusNo()
+                 << ", From: " << bus[i].getFrom()
+                 << ", To: " << bus[i].getTo()
+                 << ", Available Seats: " << emptySeats << endl;
+            vline('*');
+            found = true;
+        }
+    }
+
+    if (!found)
+        cout << "All buses are fully booked.\n";
+}
+
+void cancelReservation() {
+    string busNo, pname;
+    int seat;
+    cout << "Enter Bus Number: ";
+    cin >> busNo;
+    cout << "Enter Seat Number to Cancel (1-32): ";
+    cin >> seat;
+    cout << "Enter Passenger Name: ";
+    cin >> pname;
+
+    for (int i = 0; i < p; i++) {
+        if (strcmp(bus[i].getBusNo(), busNo.c_str()) == 0) {
+            int row = (seat - 1) / 4;
+            int col = (seat - 1) % 4;
+
+            if (strcmp(bus[i].getSeat(row, col), pname.c_str()) == 0) {
+                bus[i].setSeat(row, col, "Empty");
+                cout << "Reservation for " << pname << " at seat " << seat << " has been cancelled.\n";
+
+                // Remove from booking history
+                string label = busNo + "-Seat" + to_string(seat);
+                auto &bookings = bookingHistory[pname];
+                bookings.erase(remove(bookings.begin(), bookings.end(), label), bookings.end());
+
+                return;
+            } else {
+                cout << "No reservation found at that seat for " << pname << ".\n";
+                return;
+            }
+        }
+    }
+    cout << "Bus number not found.\n";
+}
+
+void showBookingHistory() {
+    string pname;
+    cout << "Enter passenger name to view history: ";
+    cin >> pname;
+
+    if (bookingHistory.find(pname) != bookingHistory.end() && !bookingHistory[pname].empty()) {
+        cout << pname << "'s Booking History:\n";
+        for (const string& seat : bookingHistory[pname]) {
+            cout << " - " << seat << "\n";
+        }
+    } else {
+        cout << "No booking history for " << pname << ".\n";
+    }
+}
+
+// --------- File Handling ---------
+
+void saveData() {
+    ofstream ofs("busData.txt");
+    if (!ofs) {
+        cerr << "Error opening file for saving data." << endl;
+        return;
+    }
+    ofs << p << "\n";
+    for (int i = 0; i < p; i++) {
+        ofs << bus[i].getBusNo() << "\n";
+        ofs << bus[i].getDriver() << "\n";
+        ofs << bus[i].getArrival() << "\n";
+        ofs << bus[i].getDepart() << "\n";
+        ofs << bus[i].getFrom() << "\n";
+        ofs << bus[i].getTo() << "\n";
+        for (int row = 0; row < 8; row++)
+            for (int col = 0; col < 4; col++)
+                ofs << bus[i].getSeat(row, col) << "\n";
+    }
+    ofs.close();
+}
+
+void loadData() {
+    ifstream ifs("busData.txt");
+    if (!ifs) return;
+    ifs >> p;
+    ifs.ignore();
+    for (int i = 0; i < p; i++) {
+        string temp;
+        getline(ifs, temp); bus[i].setBusNo(temp.c_str());
+        getline(ifs, temp); bus[i].setDriver(temp.c_str());
+        getline(ifs, temp); bus[i].setArrival(temp.c_str());
+        getline(ifs, temp); bus[i].setDepart(temp.c_str());
+        getline(ifs, temp); bus[i].setFrom(temp.c_str());
+        getline(ifs, temp); bus[i].setTo(temp.c_str());
+        for (int row = 0; row < 8; row++)
+            for (int col = 0; col < 4; col++) {
+                getline(ifs, temp);
+                bus[i].setSeat(row, col, temp.c_str());
+            }
+    }
+    ifs.close();
+}
+
+// ---------------- Main Program ----------------
+
+int main() {
+    int choice;
+
+    loadData();
+
+    vline('-');
+    cout << "\t\t\t\t*SM Bus Travel Agency*" << endl << endl;
+    vline('-');
+
+    while (1) {
+        cout << endl;
+        vline('*');
+        cout << "\n\n";
+        cout << "\t1. Add new Bus Details:\n"
+             << "\t2. Reserve your seats:\n"
+             << "\t3. Show the available seats in a bus:\n"
+             << "\t4. Buses Available Now:\n"
+             << "\t5. Search Bus by Route:\n"
+             << "\t6. Search Bus by Time:\n"
+             << "\t7. Search Bus by Availability:\n"
+             << "\t8. cancel Reservation:\n"
+             << "\t9. Show Booking History:\n"
+             << "\t10. For Logout:\n";
+        vline('*');
+        cout << "\n\tEnter your choice: ";
+        cin >> choice;
+        vline('*');
+
+        switch (choice) {
+            case 1: bus[p].addNewBus(); break;
+            case 2: bus[0].allotmentOfSeatToPassenger(); break;
+            case 3: bus[0].showAvailableBusSeats(); break;
+            case 4: bus[0].showAvailableBuses(); break;
+            case 5: searchBusByRoute(); break;
+            case 6: searchBusByTime(); break;
+            case 7: searchBusByAvailability(); break;
+            case 8: cancelReservation(); break;
+            case 9: showBookingHistory(); break;
+            case 10:
+                saveData();
+                cout << "Successfully Logged out. Visit Again!\n";
+                exit(0);
+            default: cout << "Invalid choice. Please try again.\n";
+        }
+    }
+
+    return 0;
 }
