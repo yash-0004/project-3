@@ -139,6 +139,7 @@ A terminal-based C++ app that allows users to manage bus seat bookings, cancella
 - Online syncing or database backend
 - SMS/email notification simulation
 - More robust error handling and edge case management
+- For all different functions we will create each header file
 
 ---
 
