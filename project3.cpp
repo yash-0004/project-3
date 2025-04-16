@@ -64,7 +64,6 @@ void a::addNewBus() {
 }
 
 void a::allotmentOfSeatToPassenger() {
-    int seat;
     char number[5];
 top:
     cout << "Bus no: ";
@@ -80,32 +79,38 @@ top:
         goto top;
     }
 
-    cout << "\nSeat Number: ";
-    cin >> seat;
+    int count;
+    cout << "How many seats do you want to reserve? ";
+    cin >> count;
 
-    if (seat > 32 || seat < 1) {
-        cout << "\nThere are only 32 seats available in this bus.";
-        return;
+    for (int i = 0; i < count; i++) {
+        int seat;
+        cout << "\nEnter seat number (1-32): ";
+        cin >> seat;
+
+        if (seat > 32 || seat < 1) {
+            cout << "Invalid seat number. There are only 32 seats available.\n";
+            continue;
+        }
+
+        int row = (seat - 1) / 4;
+        int col = (seat - 1) % 4;
+
+        if (strcmp(bus[n].getSeat(row, col), "Empty") == 0) {
+            cout << "Enter passenger's name for seat " << seat << ": ";
+            string pname;
+            cin >> pname;
+            bus[n].setSeat(row, col, pname.c_str());
+
+            // Add to booking history
+            string seatLabel = string(bus[n].getBusNo()) + "-Seat" + to_string(seat);
+            bookingHistory[pname].push_back(seatLabel);
+
+            cout << "Seat " << seat << " reserved successfully for " << pname << ".\n";
+        } else {
+            cout << "Seat " << seat << " is already reserved for " << bus[n].getSeat(row, col) << ".\n";
+        }
     }
-
-    int row = (seat - 1) / 4;
-    int col = (seat - 1) % 4;
-
-    if (strcmp(bus[n].getSeat(row, col), "Empty") == 0) {
-        cout << "Enter passenger's name: ";
-        string pname;
-        cin >> pname;
-        bus[n].setSeat(row, col, pname.c_str());
-    
-        // Add to booking history
-        string seatLabel = string(bus[n].getBusNo()) + "-Seat" + to_string(seat);
-        bookingHistory[pname].push_back(seatLabel);
-    
-        cout << "Seat reserved successfully for " << pname << ".\n";
-    } else {
-        cout << "The seat number is already reserved.\n";
-    }
-    
 }
 
 void a::empty() {
